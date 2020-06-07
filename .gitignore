@@ -75,6 +75,7 @@ fabric.properties
 
 # Other .idea files
 .idea/inspectionProfiles/**
+.idea/vcs.xml
 
 # Ignore test files
 source/**
