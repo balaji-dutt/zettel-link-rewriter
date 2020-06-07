@@ -31,6 +31,15 @@ def parse_config():
                         help="Specify path to directory containing source markdown files. Default is to use a "
                              "\"dest\" folder in the current directory. "
                         , default=pathlib.Path.joinpath(pathlib.PurePath(__file__).parent, "dest"), metavar='DIRECTORY')
+    config.add_argument('-p', '--process', action='store',
+                        help="Determine whether to process all source files or only recently modified files. Default "
+                             "is %(default)s.",
+                        choices=['all', 'modified'],
+                        default='all')
+    config.add_argument('-m', '--modified', action='store', type=int,
+                        help="Specify in minutes what is the time limit for recently modified files. Default is "
+                             "%(default)s."
+                        , default=60, metavar='MINUTES')
     options = config.parse_known_args()
     # Convert tuple of parsed arguments into a dictionary. There are two values within this tuple.
     # [0] represents recognized arguments. [1] represents unrecognized arguments on command-line or config file.
@@ -39,13 +48,17 @@ def parse_config():
     global source_files
     global target_files
     global log_file
+    global process_type
+    global modified_time
     config_file = option_values.get("config")
     source_files = option_values.get("source_files")
     target_files = option_values.get("target_files")
     logging_level = option_values.get("verbosity")
     log_file = option_values.get("file")
+    process_type = option_values.get("process")
+    modified_time = option_values.get("modified")
 
-    # Reset logging levels
+    # Reset logging levels as per config
     logger = logging.getLogger()
     logger.setLevel(logging_level.upper())
 
@@ -72,6 +85,21 @@ def parse_config():
             logging.debug("Using the default configuration file %s", default_config)
         else:
             logging.debug("Found configuration file %s", config_file)
+
+    # Check if somehow modified_time is set to NIL when processing modified files.
+    if (process_type == 'modified' and not modified_time):
+        raise ValueError("Script is set to process only recently modified files. But the modified time parameter is "
+                         "incorrectly defined.")
+
+    #Print values of other paramters in debug mode
+    if (process_type == 'all' and modified_time):
+        logging.debug("Script is set to process all files. Modified time parameter (if any) will have no effect.")
+    elif (process_type == 'modified' and modified_time):
+        logging.debug("Script is set to only process files modified in last %s minutes", modified_time)
+    else:
+        logging.debug("File processing parameter is set to %s", process_type)
+
+    return config_file
 
 
 def check_dirs(source_dir, target_dir):
