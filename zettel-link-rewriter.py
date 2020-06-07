@@ -16,20 +16,21 @@ def parse_config():
     config = configargparse.ArgParser(default_config_files=[default_config])
     config.add_argument('-c', '--config', is_config_file=True,
                         help="Specify path to Configuration file. Default is " +
-                             pathlib.PurePath(__file__).stem + ".ini", metavar="CONFIG"
+                             pathlib.PurePath(__file__).stem + ".ini", metavar='CONFIG'
                         )
     config.add_argument('-v', '--verbosity', action='store',
                         help="Specify logging level for script. Default is %(default)s.",
                         choices=['warning', 'info', 'debug'],
-                        default="warning")
+                        default='warning')
     config.add_argument('-f', '--file', action='store',
                         help='Write log messages to a file', metavar='LOGFILE')
     config.add_argument('--source_files', action='store',
-                        help='Specify path to directory containing source markdown files. Default is current directory.'
-                        , default=pathlib.PurePath(__file__).parent, metavar="DIRECTORY")
+                        help="Specify path to directory containing source markdown files. Default is current directory."
+                        , default=pathlib.PurePath(__file__).parent, metavar='DIRECTORY')
     config.add_argument('--target_files', action='store',
-                        help='Specify path to directory containing source markdown files. Default is current directory.'
-                        , default=pathlib.Path.joinpath(pathlib.PurePath(__file__).parent, "dest"), metavar="DIRECTORY")
+                        help="Specify path to directory containing source markdown files. Default is to use a "
+                             "\"dest\" folder in the current directory. "
+                        , default=pathlib.Path.joinpath(pathlib.PurePath(__file__).parent, "dest"), metavar='DIRECTORY')
     options = config.parse_known_args()
     # Convert tuple of parsed arguments into a dictionary. There are two values within this tuple.
     # [0] represents recognized arguments. [1] represents unrecognized arguments on command-line or config file.
