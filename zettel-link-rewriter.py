@@ -45,11 +45,6 @@ def parse_config():
     # [0] represents recognized arguments. [1] represents unrecognized arguments on command-line or config file.
     option_values = vars(options[0])
     # Assign dictionary values to variables.
-    global source_files
-    global target_files
-    global log_file
-    global process_type
-    global modified_time
     config_file = option_values.get("config")
     source_files = option_values.get("source_files")
     target_files = option_values.get("target_files")
@@ -91,7 +86,7 @@ def parse_config():
         raise ValueError("Script is set to process only recently modified files. But the modified time parameter is "
                          "incorrectly defined.")
 
-    #Print values of other paramters in debug mode
+    # Print values of other paramters in debug mode
     if (process_type == 'all' and modified_time):
         logging.debug("Script is set to process all files. Modified time parameter (if any) will have no effect.")
     elif (process_type == 'modified' and modified_time):
@@ -99,7 +94,7 @@ def parse_config():
     else:
         logging.debug("File processing parameter is set to %s", process_type)
 
-    return config_file
+    return config_file, source_files, target_files, log_file, process_type, modified_time
 
 
 def check_dirs(source_dir, target_dir):
@@ -117,8 +112,10 @@ def check_dirs(source_dir, target_dir):
 
 
 def main():
-    parse_config()
-    check_dirs(source_files, target_files)
+    parameters = parse_config()
+    #print(parameters)
+    check_dirs(source_dir=str(parameters[1]), target_dir=str(parameters[2]))
+    process_files(source_dir=str(parameters[1]), process_type=parameters[4], modified_time=parameters[5])
 
 
 if __name__ == '__main__':
