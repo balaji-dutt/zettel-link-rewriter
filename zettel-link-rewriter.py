@@ -4,6 +4,7 @@ import os
 import logging
 import pathlib
 import configargparse
+import time
 
 # Configure logging early
 logging.basicConfig(level=10,  # DEBUG by default
@@ -110,6 +111,25 @@ def check_dirs(source_dir, target_dir):
         # exist_ok=True will function like mkdir -p so there is no need to wrap this in a try-except block.
 
     return [source_dir, target_dir]
+
+
+def process_files(source_dir, target_dir, process_type, modified_time):
+    if process_type == 'all':
+        for file in pathlib.Path(source_dir).glob('*.*'):
+            # We will not use iterdir() here since that will descend into sub-directories which may have
+            # unexpected side-effects
+            modified_text = modify_links(file)
+            # Return values can only be obtained in the calling function and are captured by
+            # calling the function while assigning to a variable.
+            write_file(modified_text, file, target_dir)
+            # writer_dummy(regex_dummy(file))
+            # Short-hand way of calling one function with the return value of another.
+    elif process_type == 'modified':
+        for file in pathlib.Path(source_dir).glob('*.*'):
+            if pathlib.Path(file).stat().st_mtime > time.time() - modified_time * 60:
+                modified_text = modify_links(file)
+                write_file(modified_text, file, target_dir)
+
 
 
 def main():
