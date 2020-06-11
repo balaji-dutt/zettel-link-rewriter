@@ -107,6 +107,9 @@ def check_dirs(source_dir, target_dir):
     else:
         logging.warning('Did not find the target directory %s. Will try create it now', target_dir)
         pathlib.Path(target_dir).mkdir(exist_ok=True)
+        # exist_ok=True will function like mkdir -p so there is no need to wrap this in a try-except block.
+
+    return [source_dir, target_dir]
 
 
 def main():
