@@ -114,7 +114,6 @@ def check_dirs(source_dir, target_dir):
 
 def main():
     parameters = parse_config()
-    #print(parameters)
     # print(parameters)
     check_dirs(source_dir=str(parameters[1]), target_dir=str(parameters[2]))
     process_files(source_dir=str(parameters[1]), target_dir=str(parameters[2]), process_type=parameters[4],
