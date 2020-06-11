@@ -72,9 +72,8 @@ def parse_config():
     # Check if specified config file exists else bail
     try:
         pathlib.Path(config_file).exists()
-    except:
+    except FileNotFoundError:
         logging.exception('Did not find the specified configuration file %s', config_file)
-        raise FileNotFoundError
     else:
         if config_file == default_config:
             logging.debug("Using the default configuration file %s", default_config)
@@ -82,14 +81,14 @@ def parse_config():
             logging.debug("Found configuration file %s", config_file)
 
     # Check if somehow modified_time is set to NIL when processing modified files.
-    if (process_type == 'modified' and not modified_time):
+    if process_type == 'modified' and not modified_time:
         raise ValueError("Script is set to process only recently modified files. But the modified time parameter is "
                          "incorrectly defined.")
 
-    # Print values of other paramters in debug mode
-    if (process_type == 'all' and modified_time):
+    # Print values of other parameters in debug mode
+    if process_type == 'all' and modified_time:
         logging.debug("Script is set to process all files. Modified time parameter (if any) will have no effect.")
-    elif (process_type == 'modified' and modified_time):
+    elif process_type == 'modified' and modified_time:
         logging.debug("Script is set to only process files modified in last %s minutes", modified_time)
     else:
         logging.debug("File processing parameter is set to %s", process_type)
@@ -98,11 +97,10 @@ def parse_config():
 
 
 def check_dirs(source_dir, target_dir):
-    if pathlib.Path(source_dir).exists():
-        pass
-    else:
+    try:
+        pathlib.Path(source_dir).exists()
+    except NotADirectoryError:
         logging.exception('Did not find the directory %s', source_dir)
-        raise NotADirectoryError
 
     if pathlib.Path(target_dir).exists():
         pass
@@ -114,8 +112,10 @@ def check_dirs(source_dir, target_dir):
 def main():
     parameters = parse_config()
     #print(parameters)
+    # print(parameters)
     check_dirs(source_dir=str(parameters[1]), target_dir=str(parameters[2]))
-    process_files(source_dir=str(parameters[1]), process_type=parameters[4], modified_time=parameters[5])
+    process_files(source_dir=str(parameters[1]), target_dir=str(parameters[2]), process_type=parameters[4],
+                  modified_time=parameters[5])
 
 
 if __name__ == '__main__':
