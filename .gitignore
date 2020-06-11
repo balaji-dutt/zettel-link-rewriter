@@ -79,8 +79,9 @@ fabric.properties
 
 # Ignore test files
 source/**
-target/**
+dest/**
 writer.ini
 
 #Ignore Python venv
 venv/**
+.venv/**
