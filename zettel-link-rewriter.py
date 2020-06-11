@@ -128,6 +128,18 @@ def modify_links(file_obj):
 
     return linelist_final
 
+
+def write_file(file_contents, file, target_dir):
+    name = pathlib.PurePath(file).name
+    fullpath = pathlib.PurePath(target_dir).joinpath(name)
+    with open(fullpath, 'w', encoding="utf8") as outfile:
+        for item in file_contents:
+            outfile.write("%s" % item)
+        outfile.close()
+
+    return 0
+
+
 def process_files(source_dir, target_dir, process_type, modified_time):
     if process_type == 'all':
         for file in pathlib.Path(source_dir).glob('*.*'):
