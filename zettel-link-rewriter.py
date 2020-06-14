@@ -173,11 +173,17 @@ def process_files(source_dir, target_dir, process_type, modified_time):
 
 
 def main():
+    start_time = time.perf_counter()
     parameters = parse_config()
-    # print(parameters)
     check_dirs(source_dir=str(parameters[1]), target_dir=str(parameters[2]))
-    process_files(source_dir=str(parameters[1]), target_dir=str(parameters[2]), process_type=parameters[4],
-                  modified_time=parameters[5])
+    count = process_files(source_dir=str(parameters[1]), target_dir=str(parameters[2]), process_type=parameters[4],
+                          modified_time=parameters[5])
+    end_time = time.perf_counter()
+    elapsed_time = end_time - start_time
+    hours, remainder = divmod(elapsed_time, 3600)
+    minutes, seconds = divmod(remainder, 60)
+    print("Script took {:02}:{:02}:{:02}".format(int(hours), int(minutes), int(seconds)), "to process {0} files"
+          .format(count))
 
 
 if __name__ == '__main__':
