@@ -114,16 +114,22 @@ def check_dirs(source_dir, target_dir):
 
 
 def modify_links(file_obj):
-    # Stand-in for actual regex function
     file = file_obj
     linelist = []
-    with open(file, encoding="utf8") as infile:
-        for line in infile:
-            linelist.append(re.sub(r"(\[\[)((?<=\[\[).*(?=\]\]))(\]\])(?!\()", r"[\2](\2.md)", line))
-            # Finds only references that are in style [[foo]] without following (). Capture group $2 returns just foo
-            linelist_final = [re.sub(r"(\[\[)((?<=\[\[)\d+(?=\]\]))(\]\])(\()((?!=\().*(?=\)))(\))",
-                                     r"[\2 \5](\2 \5.md)", line) for line in linelist]
-            # Finds only references in style [[foo]](bar). Capture group $2 returns foo and capture group $5 returns bar
+    logging.debug("Going to open file %s for processing now.", file)
+    try:
+        with open(file, encoding="utf8") as infile:
+            for line in infile:
+                linelist.append(re.sub(r"(\[\[)((?<=\[\[).*(?=\]\]))(\]\])(?!\()", r"[\2](\2.md)", line))
+                # Finds  references that are in style [[foo]] only by excluding links in style [[foo]](bar).
+                # Capture group $2 returns just foo
+                linelist_final = [re.sub(r"(\[\[)((?<=\[\[)\d+(?=\]\]))(\]\])(\()((?!=\().*(?=\)))(\))",
+                                         r"[\2 \5](\2 \5.md)", line) for line in linelist]
+                # Finds only references in style [[foo]](bar). Capture group $2 returns foo and capture group $5
+                # returns bar
+    except EnvironmentError:
+        logging.exception("Unable to open file %s for reading", file)
+    logging.debug("Finished processing file %s", file)
 
     return linelist_final
 
