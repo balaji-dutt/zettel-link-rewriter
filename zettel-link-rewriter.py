@@ -97,10 +97,11 @@ def parse_config():
 
 
 def check_dirs(source_dir, target_dir):
-    try:
-        pathlib.Path(source_dir).exists()
-    except NotADirectoryError:
+    if pathlib.Path(source_dir).exists():
+        pass
+    else:
         logging.exception('Did not find the directory %s', source_dir)
+        raise NotADirectoryError
 
     if pathlib.Path(target_dir).exists():
         pass
