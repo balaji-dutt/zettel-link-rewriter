@@ -151,7 +151,8 @@ def write_file(file_contents, file, target_dir):
 
 def process_files(source_dir, target_dir, process_type, modified_time):
     if process_type == 'all':
-        for file in pathlib.Path(source_dir).glob('*.*'):
+        logging.debug("Start processing all files in %s", source_dir)
+        for count, file in enumerate(pathlib.Path(source_dir).glob('*.*'), start=1):
             # We will not use iterdir() here since that will descend into sub-directories which may have
             # unexpected side-effects
             modified_text = modify_links(file)
@@ -161,11 +162,14 @@ def process_files(source_dir, target_dir, process_type, modified_time):
             # writer_dummy(regex_dummy(file))
             # Short-hand way of calling one function with the return value of another.
     elif process_type == 'modified':
-        for file in pathlib.Path(source_dir).glob('*.*'):
+        logging.debug("Start processing recently modified files in %s", source_dir)
+        for count, file in enumerate(pathlib.Path(source_dir).glob('*.*'), start=1):
             if pathlib.Path(file).stat().st_mtime > time.time() - modified_time * 60:
                 modified_text = modify_links(file)
                 write_file(modified_text, file, target_dir)
+    logging.debug("Finished processing all files in %s", source_dir)
 
+    return count
 
 
 def main():
