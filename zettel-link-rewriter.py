@@ -92,8 +92,6 @@ def parse_config():
         logging.debug("Script is set to process all files. Modified time parameter (if any) will have no effect.")
     elif process_type == 'modified' and modified_time:
         logging.debug("Script is set to only process files modified in last %s minutes", modified_time)
-    else:
-        logging.debug("File processing parameter is set to %s", process_type)
 
     return config_file, source_files, target_files, log_file, process_type, modified_time
 
