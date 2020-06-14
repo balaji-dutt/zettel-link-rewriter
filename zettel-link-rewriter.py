@@ -97,6 +97,14 @@ def parse_config():
 
 
 def check_dirs(source_dir, target_dir):
+    """
+    Function to check if specified directories exist. The function will create the destination directory if it does
+    exist.
+
+    :param source_dir: Directory containing files to be processed.
+    :param target_dir: Directory to store files after they are processed.
+    :return: Directory paths
+    """
     if pathlib.Path(source_dir).exists():
         pass
     else:
@@ -114,6 +122,14 @@ def check_dirs(source_dir, target_dir):
 
 
 def modify_links(file_obj):
+    """
+    Function will parse file contents (opened in utf-8 mode) and modify standalone [[wikilinks]] and in-line
+    [[wikilinks]](wikilinks) into traditional Markdown link syntax.
+
+    :param file_obj: Path to file
+    :return: List object containing modified text. Newlines will be returned as '\n' strings.
+    """
+
     file = file_obj
     linelist = []
     logging.debug("Going to open file %s for processing now.", file)
@@ -135,6 +151,15 @@ def modify_links(file_obj):
 
 
 def write_file(file_contents, file, target_dir):
+    """
+    Function will take modified contents of file from modify_links() function and output to target directory. File
+    extensions are preserved and file is written in utf-8 mode.
+
+    :param file_contents: List object containing modified text.
+    :param file: Path to source file. Will be used to construct target file name.
+    :param target_dir: Path to destination directory
+    :return: Full path to file that was written to target directory.
+    """
     name = pathlib.PurePath(file).name
     fullpath = pathlib.PurePath(target_dir).joinpath(name)
     logging.debug("Going to write file %s now.", fullpath)
@@ -150,6 +175,16 @@ def write_file(file_contents, file, target_dir):
 
 
 def process_files(source_dir, target_dir, process_type, modified_time):
+    """
+    Function to process input files. Will operate in a loop on all files (process "all")
+    or recently modified files (process "modified")
+
+    :param source_dir: Path to directory containing files to be processed.
+    :param target_dir: Path to directory where files should be written to after processing.
+    :param process_type: Flag to process all or only modified files.
+    :param modified_time: Time window for finding recently modified files.
+    :return: Number of files processed.
+    """
     if process_type == 'all':
         logging.debug("Start processing all files in %s", source_dir)
         for count, file in enumerate(pathlib.Path(source_dir).glob('*.*'), start=1):
