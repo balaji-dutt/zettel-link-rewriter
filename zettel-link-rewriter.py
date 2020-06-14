@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 
-import os
 import logging
 import pathlib
 import configargparse
