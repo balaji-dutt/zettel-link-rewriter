@@ -137,12 +137,16 @@ def modify_links(file_obj):
 def write_file(file_contents, file, target_dir):
     name = pathlib.PurePath(file).name
     fullpath = pathlib.PurePath(target_dir).joinpath(name)
-    with open(fullpath, 'w', encoding="utf8") as outfile:
-        for item in file_contents:
-            outfile.write("%s" % item)
-        outfile.close()
+    logging.debug("Going to write file %s now.", fullpath)
+    try:
+        with open(fullpath, 'w', encoding="utf8") as outfile:
+            for item in file_contents:
+                outfile.write("%s" % item)
+    except EnvironmentError:
+        logging.exception("Unable to write contents to %s", fullpath)
 
-    return 0
+    logging.debug("Finished writing file %s now.", fullpath)
+    return fullpath
 
 
 def process_files(source_dir, target_dir, process_type, modified_time):
