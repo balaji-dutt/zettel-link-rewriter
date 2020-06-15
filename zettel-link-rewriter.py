@@ -139,7 +139,7 @@ def modify_links(file_obj):
                 # Finds  references that are in style [[foo]] only by excluding links in style [[foo]](bar).
                 # Capture group $2 returns just foo
                 linelist_final = [re.sub(r"(\[\[)((?<=\[\[)\d+(?=\]\]))(\]\])(\()((?!=\().*(?=\)))(\))",
-                                         r"[\2 \5](\2 \5.md)", line) for line in linelist]
+                                         r"[\2](\2 \5.md)", line) for line in linelist]
                 # Finds only references in style [[foo]](bar). Capture group $2 returns foo and capture group $5
                 # returns bar
     except EnvironmentError:
