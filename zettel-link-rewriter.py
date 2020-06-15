@@ -7,7 +7,7 @@ import re
 import time
 
 # Configure logging early
-logging.basicConfig(level=10,  # DEBUG by default
+logging.basicConfig(level=logging.DEBUG,
                     format="%(asctime)s %(levelname)-8s %(funcName)s():%(lineno)i:        %(message)s",
                     datefmt="%Y-%m-%d %H:%M:%S")
 
@@ -110,6 +110,7 @@ def check_dirs(source_dir, target_dir):
         logging.exception('Did not find the directory %s', source_dir)
         raise NotADirectoryError
 
+
     if pathlib.Path(target_dir).exists():
         pass
     else:
@@ -145,7 +146,6 @@ def modify_links(file_obj):
     except EnvironmentError:
         logging.exception("Unable to open file %s for reading", file)
     logging.debug("Finished processing file %s", file)
-
     return linelist_final
 
 
