@@ -184,6 +184,8 @@ def process_files(source_dir, target_dir, process_type, modified_time):
     :param modified_time: Time window for finding recently modified files.
     :return: Number of files processed.
     """
+    count = 0
+
     if process_type == 'all':
         logging.debug("Start processing all files in %s", source_dir)
         for count, file in enumerate(pathlib.Path(source_dir).glob('*.*'), start=1):
