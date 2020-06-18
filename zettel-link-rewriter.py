@@ -5,6 +5,7 @@ import pathlib
 import configargparse
 import re
 import time
+import sys
 
 # Configure logging early
 logging.basicConfig(level=logging.DEBUG,
@@ -43,6 +44,10 @@ def parse_config():
                         help="Specify in minutes what is the time limit for recently modified files. Default is "
                              "%(default)s."
                         , default=60, metavar='MINUTES')
+    if len(sys.argv) == 1:
+        print('Script is being executed without any parameters and will use built-in defaults. Re-run script with -h '
+              'parameter to understand options available.')
+
     options = config.parse_known_args()
     # Convert tuple of parsed arguments into a dictionary. There are two values within this tuple.
     # [0] represents recognized arguments. [1] represents unrecognized arguments on command-line or config file.
