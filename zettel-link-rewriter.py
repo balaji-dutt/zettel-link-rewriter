@@ -138,6 +138,7 @@ def modify_links(file_obj):
 
     file = file_obj
     linelist = []
+    logging.info("Start modifying files")
     logging.debug("Going to open file %s for processing now.", file)
     try:
         with open(file, encoding="utf8") as infile:
@@ -167,6 +168,7 @@ def write_file(file_contents, file, target_dir):
     """
     name = pathlib.Path(file).name
     fullpath = pathlib.Path(target_dir).joinpath(name)
+    logging.info("Start writing files")
     logging.debug("Going to write file %s now.", fullpath)
     try:
         with open(fullpath, 'w', encoding="utf8") as outfile:
@@ -192,6 +194,7 @@ def process_files(source_dir, target_dir, process_type, modified_time):
     """
     count = 0
 
+    logging.info("Start processing files")
     if process_type == 'all':
         logging.debug("Start processing all files in %s", source_dir)
         for count, file in enumerate(pathlib.Path(source_dir).glob('*.*'), start=1):
