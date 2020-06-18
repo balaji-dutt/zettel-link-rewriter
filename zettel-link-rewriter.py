@@ -13,11 +13,11 @@ logging.basicConfig(level=logging.DEBUG,
 
 
 def parse_config():
-    default_config = pathlib.PurePath(__file__).stem + ".ini"
+    default_config = pathlib.Path(__file__).stem + ".ini"
     config = configargparse.ArgParser(default_config_files=[default_config])
     config.add_argument('-c', '--config', is_config_file=True,
-                        help="Specify path to Configuration file. Default is " +
-                             pathlib.PurePath(__file__).stem + ".ini", metavar='CONFIG'
+                        help="Specify path to Configuration file. Default is {0}.ini".format(
+                            pathlib.Path(__file__).stem), metavar='CONFIG'
                         )
     config.add_argument('-v', '--verbosity', action='store',
                         help="Specify logging level for script. Default is %(default)s.",
@@ -26,12 +26,14 @@ def parse_config():
     config.add_argument('-f', '--file', action='store',
                         help='Write log messages to a file', metavar='LOGFILE')
     config.add_argument('--source_files', action='store',
-                        help="Specify path to directory containing source markdown files. Default is current directory."
-                        , default=pathlib.PurePath(__file__).parent, metavar='DIRECTORY')
+                        help="Specify path to directory containing source markdown files. Default is to use a "
+                             "\"source\" folder in the current directory. "
+                        , default=pathlib.Path.joinpath(pathlib.Path(__file__).parent, "source"),
+                        metavar='DIRECTORY')
     config.add_argument('--target_files', action='store',
                         help="Specify path to directory containing source markdown files. Default is to use a "
                              "\"dest\" folder in the current directory. "
-                        , default=pathlib.Path.joinpath(pathlib.PurePath(__file__).parent, "dest"), metavar='DIRECTORY')
+                        , default=pathlib.Path.joinpath(pathlib.Path(__file__).parent, "dest"), metavar='DIRECTORY')
     config.add_argument('-p', '--process', action='store',
                         help="Determine whether to process all source files or only recently modified files. Default "
                              "is %(default)s.",
@@ -163,8 +165,8 @@ def write_file(file_contents, file, target_dir):
     :param target_dir: Path to destination directory
     :return: Full path to file that was written to target directory.
     """
-    name = pathlib.PurePath(file).name
-    fullpath = pathlib.PurePath(target_dir).joinpath(name)
+    name = pathlib.Path(file).name
+    fullpath = pathlib.Path(target_dir).joinpath(name)
     logging.debug("Going to write file %s now.", fullpath)
     try:
         with open(fullpath, 'w', encoding="utf8") as outfile:
