@@ -71,15 +71,14 @@ def parse_config():
         logging.warning("Outputting to log file")
 
     # Check if specified config file exists else bail
-    try:
-        pathlib.Path(config_file).exists()
-    except FileNotFoundError:
-        logging.exception('Did not find the specified configuration file %s', config_file)
+    if config_file is None:
+        config_file = default_config
+        logging.debug("No configuration file specified. Using the default configuration file %s", default_config)
+    elif pathlib.Path(config_file).exists():
+        logging.debug("Found configuration file %s", config_file)
     else:
-        if config_file == default_config:
-            logging.debug("Using the default configuration file %s", default_config)
-        else:
-            logging.debug("Found configuration file %s", config_file)
+        logging.exception('Did not find the specified configuration file %s', config_file)
+        raise FileNotFoundError
 
     # Check if somehow modified_time is set to NIL when processing modified files.
     if process_type == 'modified' and not modified_time:
@@ -104,19 +103,24 @@ def check_dirs(source_dir, target_dir):
     :param target_dir: Directory to store files after they are processed.
     :return: Directory paths
     """
-    if pathlib.Path(source_dir).exists():
+    if source_dir == str(pathlib.Path.joinpath(pathlib.Path(__file__).parent, "source")) and pathlib.Path(
+            source_dir).exists():
+        print('No source directory found in specified configuration file. Using default {} instead'.format(source_dir))
+    elif pathlib.Path(source_dir).exists():
         pass
     else:
         logging.exception('Did not find the directory %s', source_dir)
         raise NotADirectoryError
 
-
-    if pathlib.Path(target_dir).exists():
-        pass
-    else:
-        logging.warning('Did not find the target directory %s. Will try create it now', target_dir)
+    if target_dir == str(pathlib.Path.joinpath(pathlib.Path(__file__).parent, "dest")):
+        print('No target directory found in specified configuration file. Using default {} instead'.format(target_dir))
         pathlib.Path(target_dir).mkdir(exist_ok=True)
         # exist_ok=True will function like mkdir -p so there is no need to wrap this in a try-except block.
+    elif pathlib.Path(target_dir).exists():
+        pass
+    else:
+        print('Did not find the target directory {}. Will try create it now'.format(target_dir))
+        pathlib.Path(target_dir).mkdir(exist_ok=True)
 
     return [source_dir, target_dir]
 
