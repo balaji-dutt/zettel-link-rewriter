@@ -32,8 +32,8 @@ def parse_config():
                         , default=pathlib.Path.joinpath(pathlib.Path(__file__).parent, "source"),
                         metavar='DIRECTORY')
     config.add_argument('--target_files', action='store',
-                        help="Specify path to directory containing source markdown files. Default is to use a "
-                             "\"dest\" folder in the current directory. "
+                        help="Specify path to directory where processed markdown files should be saved. Default is to "
+                             "use a \"dest\" folder in the current directory. "
                         , default=pathlib.Path.joinpath(pathlib.Path(__file__).parent, "dest"), metavar='DIRECTORY')
     config.add_argument('-p', '--process', action='store',
                         help="Determine whether to process all source files or only recently modified files. Default "
