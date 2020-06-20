@@ -110,21 +110,21 @@ def check_dirs(source_dir, target_dir):
     :param target_dir: Directory to store files after they are processed.
     :return: Directory paths
     """
-    if source_dir == str(pathlib.Path.joinpath(pathlib.Path(__file__).parent, "source")) and pathlib.Path(
+    if pathlib.Path(source_dir).exists():
+        pass
+    elif source_dir == str(pathlib.Path.joinpath(pathlib.Path(__file__).parent, "source")) and pathlib.Path(
             source_dir).exists():
         print('No source directory found in specified configuration file. Using default {} instead'.format(source_dir))
-    elif pathlib.Path(source_dir).exists():
-        pass
     else:
         logging.exception('Did not find the directory %s', source_dir)
         raise NotADirectoryError
 
-    if target_dir == str(pathlib.Path.joinpath(pathlib.Path(__file__).parent, "dest")):
+    if pathlib.Path(target_dir).exists():
+        pass
+    elif target_dir == str(pathlib.Path.joinpath(pathlib.Path(__file__).parent, "dest")):
         print('No target directory found in specified configuration file. Using default {} instead'.format(target_dir))
         pathlib.Path(target_dir).mkdir(exist_ok=True)
         # exist_ok=True will function like mkdir -p so there is no need to wrap this in a try-except block.
-    elif pathlib.Path(target_dir).exists():
-        pass
     else:
         print('Did not find the target directory {}. Will try create it now'.format(target_dir))
         pathlib.Path(target_dir).mkdir(exist_ok=True)
