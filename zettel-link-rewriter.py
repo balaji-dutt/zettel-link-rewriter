@@ -3,7 +3,7 @@
 import logging
 import pathlib
 import configargparse
-import re
+import regex
 import time
 import sys
 
@@ -142,18 +142,24 @@ def modify_links(file_obj):
     """
 
     file = file_obj
-    linelist = []
     logging.debug("Going to start processing %s.", file)
     try:
         with open(file, encoding="utf8") as infile:
-            for line in infile:
-                linelist.append(re.sub(r"(\[\[)((?<=\[\[).*(?=\]\]))(\]\])(?!\()", r"[\2](\2.md)", line))
-                # Finds  references that are in style [[foo]] only by excluding links in style [[foo]](bar).
-                # Capture group $2 returns just foo
-                linelist_final = [re.sub(r"(\[\[)((?<=\[\[)\d+(?=\]\]))(\]\])(\()((?!=\().*(?=\)))(\))",
-                                         r"[\2](\2 \5.md)", line) for line in linelist]
-                # Finds only references in style [[foo]](bar). Capture group $2 returns foo and capture group $5
-                # returns bar
+            line = infile.read()
+            # Read the entire file as a single string
+            linelist = regex.sub(r"(?V1)"
+                                 r"(?s)```.*?```|`.*?`(*SKIP)(*FAIL)(?-s)|(\ {4}|\t).*(*SKIP)(*FAIL)"
+            #                    Ignore fenced & inline code blocks   | Ignore code blocks beginning with 4 spaces/1 tab
+            #                    V1 engine allows in-line flags so    |
+            #                    we enable newline matching only here.|
+                                 r"|(\[\[(.*)\]\](?!\s\(|\())", r"[\3](\3.md)", line)
+            # Finds  references that are in style [[foo]] only by excluding links in style [[foo]](bar) or
+            # [[foo]] (bar). Capture group $3 returns just foo
+            linelist_final = regex.sub(r"(?V1)(?s)```.*?```|`.*?`(*SKIP)(*FAIL)(?-s)|(\ {4}|\t).*(*SKIP)(*FAIL)"
+            #                             Refer comments above for this portion.
+                                       r"|(\[\[(\d+)\]\](\s\(|\()(.*)(?=\))\))", r"[\3](\3 \5.md)", linelist)
+            # Finds only references in style [[123]](bar) or [[123]] (bar). Capture group $3 returns 123 and capture
+            # group $5 returns bar
     except EnvironmentError:
         logging.exception("Unable to open file %s for reading", file)
     logging.debug("Finished processing %s", file)
