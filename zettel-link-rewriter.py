@@ -143,8 +143,7 @@ def modify_links(file_obj):
 
     file = file_obj
     linelist = []
-    logging.info("Start modifying files")
-    logging.debug("Going to open file %s for processing now.", file)
+    logging.debug("Going to start processing %s.", file)
     try:
         with open(file, encoding="utf8") as infile:
             for line in infile:
@@ -157,7 +156,7 @@ def modify_links(file_obj):
                 # returns bar
     except EnvironmentError:
         logging.exception("Unable to open file %s for reading", file)
-    logging.debug("Finished processing file %s", file)
+    logging.debug("Finished processing %s", file)
     return linelist_final
 
 
@@ -173,7 +172,6 @@ def write_file(file_contents, file, target_dir):
     """
     name = pathlib.Path(file).name
     fullpath = pathlib.Path(target_dir).joinpath(name)
-    logging.info("Start writing files")
     logging.debug("Going to write file %s now.", fullpath)
     try:
         with open(fullpath, 'w', encoding="utf8") as outfile:
@@ -199,9 +197,8 @@ def process_files(source_dir, target_dir, process_type, modified_time):
     """
     count = 0
 
-    logging.info("Start processing files")
     if process_type == 'all':
-        logging.debug("Start processing all files in %s", source_dir)
+        logging.info("Start processing all files in %s", source_dir)
         for count, file in enumerate(pathlib.Path(source_dir).glob('*.*'), start=1):
             # We will not use iterdir() here since that will descend into sub-directories which may have
             # unexpected side-effects
@@ -212,12 +209,12 @@ def process_files(source_dir, target_dir, process_type, modified_time):
             # writer_dummy(regex_dummy(file))
             # Short-hand way of calling one function with the return value of another.
     elif process_type == 'modified':
-        logging.debug("Start processing recently modified files in %s", source_dir)
+        logging.info("Start processing recently modified files in %s", source_dir)
         for count, file in enumerate(pathlib.Path(source_dir).glob('*.*'), start=1):
             if pathlib.Path(file).stat().st_mtime > time.time() - modified_time * 60:
                 modified_text = modify_links(file)
                 write_file(modified_text, file, target_dir)
-    logging.debug("Finished processing all files in %s", source_dir)
+    logging.info("Finished processing all files in %s", source_dir)
 
     return count
 
