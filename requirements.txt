@@ -1,1 +1,2 @@
 ConfigArgParse==1.2.3
+regex==2020.6.8
