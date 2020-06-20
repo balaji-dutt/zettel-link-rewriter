@@ -138,7 +138,7 @@ def modify_links(file_obj):
     [[wikilinks]](wikilinks) into traditional Markdown link syntax.
 
     :param file_obj: Path to file
-    :return: List object containing modified text. Newlines will be returned as '\n' strings.
+    :return: String containing modified text. Newlines will be returned as '\\n' in the string.
     """
 
     file = file_obj
@@ -171,7 +171,7 @@ def write_file(file_contents, file, target_dir):
     Function will take modified contents of file from modify_links() function and output to target directory. File
     extensions are preserved and file is written in utf-8 mode.
 
-    :param file_contents: List object containing modified text.
+    :param file_contents: String containing modified text.
     :param file: Path to source file. Will be used to construct target file name.
     :param target_dir: Path to destination directory
     :return: Full path to file that was written to target directory.
