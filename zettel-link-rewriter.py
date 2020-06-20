@@ -3,7 +3,7 @@
 import logging
 import pathlib
 import configargparse
-import re
+import regex
 import time
 import sys
 
@@ -110,21 +110,21 @@ def check_dirs(source_dir, target_dir):
     :param target_dir: Directory to store files after they are processed.
     :return: Directory paths
     """
-    if source_dir == str(pathlib.Path.joinpath(pathlib.Path(__file__).parent, "source")) and pathlib.Path(
+    if pathlib.Path(source_dir).exists():
+        pass
+    elif source_dir == str(pathlib.Path.joinpath(pathlib.Path(__file__).parent, "source")) and pathlib.Path(
             source_dir).exists():
         print('No source directory found in specified configuration file. Using default {} instead'.format(source_dir))
-    elif pathlib.Path(source_dir).exists():
-        pass
     else:
         logging.exception('Did not find the directory %s', source_dir)
         raise NotADirectoryError
 
-    if target_dir == str(pathlib.Path.joinpath(pathlib.Path(__file__).parent, "dest")):
+    if pathlib.Path(target_dir).exists():
+        pass
+    elif target_dir == str(pathlib.Path.joinpath(pathlib.Path(__file__).parent, "dest")):
         print('No target directory found in specified configuration file. Using default {} instead'.format(target_dir))
         pathlib.Path(target_dir).mkdir(exist_ok=True)
         # exist_ok=True will function like mkdir -p so there is no need to wrap this in a try-except block.
-    elif pathlib.Path(target_dir).exists():
-        pass
     else:
         print('Did not find the target directory {}. Will try create it now'.format(target_dir))
         pathlib.Path(target_dir).mkdir(exist_ok=True)
@@ -138,26 +138,31 @@ def modify_links(file_obj):
     [[wikilinks]](wikilinks) into traditional Markdown link syntax.
 
     :param file_obj: Path to file
-    :return: List object containing modified text. Newlines will be returned as '\n' strings.
+    :return: String containing modified text. Newlines will be returned as '\\n' in the string.
     """
 
     file = file_obj
-    linelist = []
-    logging.info("Start modifying files")
-    logging.debug("Going to open file %s for processing now.", file)
+    logging.debug("Going to start processing %s.", file)
     try:
         with open(file, encoding="utf8") as infile:
-            for line in infile:
-                linelist.append(re.sub(r"(\[\[)((?<=\[\[).*(?=\]\]))(\]\])(?!\()", r"[\2](\2.md)", line))
-                # Finds  references that are in style [[foo]] only by excluding links in style [[foo]](bar).
-                # Capture group $2 returns just foo
-                linelist_final = [re.sub(r"(\[\[)((?<=\[\[)\d+(?=\]\]))(\]\])(\()((?!=\().*(?=\)))(\))",
-                                         r"[\2](\2 \5.md)", line) for line in linelist]
-                # Finds only references in style [[foo]](bar). Capture group $2 returns foo and capture group $5
-                # returns bar
+            line = infile.read()
+            # Read the entire file as a single string
+            linelist = regex.sub(r"(?V1)"
+                                 r"(?s)```.*?```|`.*?`(*SKIP)(*FAIL)(?-s)|(\ {4}|\t).*(*SKIP)(*FAIL)"
+            #                    Ignore fenced & inline code blocks   | Ignore code blocks beginning with 4 spaces/1 tab
+            #                    V1 engine allows in-line flags so    |
+            #                    we enable newline matching only here.|
+                                 r"|(\[\[(.*)\]\](?!\s\(|\())", r"[\3](\3.md)", line)
+            # Finds  references that are in style [[foo]] only by excluding links in style [[foo]](bar) or
+            # [[foo]] (bar). Capture group $3 returns just foo
+            linelist_final = regex.sub(r"(?V1)(?s)```.*?```|`.*?`(*SKIP)(*FAIL)(?-s)|(\ {4}|\t).*(*SKIP)(*FAIL)"
+            #                             Refer comments above for this portion.
+                                       r"|(\[\[(\d+)\]\](\s\(|\()(.*)(?=\))\))", r"[\3](\3 \5.md)", linelist)
+            # Finds only references in style [[123]](bar) or [[123]] (bar). Capture group $3 returns 123 and capture
+            # group $5 returns bar
     except EnvironmentError:
         logging.exception("Unable to open file %s for reading", file)
-    logging.debug("Finished processing file %s", file)
+    logging.debug("Finished processing %s", file)
     return linelist_final
 
 
@@ -166,14 +171,13 @@ def write_file(file_contents, file, target_dir):
     Function will take modified contents of file from modify_links() function and output to target directory. File
     extensions are preserved and file is written in utf-8 mode.
 
-    :param file_contents: List object containing modified text.
+    :param file_contents: String containing modified text.
     :param file: Path to source file. Will be used to construct target file name.
     :param target_dir: Path to destination directory
     :return: Full path to file that was written to target directory.
     """
     name = pathlib.Path(file).name
     fullpath = pathlib.Path(target_dir).joinpath(name)
-    logging.info("Start writing files")
     logging.debug("Going to write file %s now.", fullpath)
     try:
         with open(fullpath, 'w', encoding="utf8") as outfile:
@@ -199,9 +203,8 @@ def process_files(source_dir, target_dir, process_type, modified_time):
     """
     count = 0
 
-    logging.info("Start processing files")
     if process_type == 'all':
-        logging.debug("Start processing all files in %s", source_dir)
+        logging.info("Start processing all files in %s", source_dir)
         for count, file in enumerate(pathlib.Path(source_dir).glob('*.*'), start=1):
             # We will not use iterdir() here since that will descend into sub-directories which may have
             # unexpected side-effects
@@ -212,12 +215,12 @@ def process_files(source_dir, target_dir, process_type, modified_time):
             # writer_dummy(regex_dummy(file))
             # Short-hand way of calling one function with the return value of another.
     elif process_type == 'modified':
-        logging.debug("Start processing recently modified files in %s", source_dir)
+        logging.info("Start processing recently modified files in %s", source_dir)
         for count, file in enumerate(pathlib.Path(source_dir).glob('*.*'), start=1):
             if pathlib.Path(file).stat().st_mtime > time.time() - modified_time * 60:
                 modified_text = modify_links(file)
                 write_file(modified_text, file, target_dir)
-    logging.debug("Finished processing all files in %s", source_dir)
+    logging.info("Finished processing all files in %s", source_dir)
 
     return count
 
