@@ -28,13 +28,13 @@ def parse_config():
                         help='Write log messages to a file', metavar='LOGFILE')
     config.add_argument('--source_files', action='store',
                         help="Specify path to directory containing source markdown files. Default is to use a "
-                             "\"source\" folder in the current directory. "
-                        , default=pathlib.Path.joinpath(pathlib.Path(__file__).parent, "source"),
+                             "\"source\" folder in the current directory. ",
+                        default=pathlib.Path.joinpath(pathlib.Path(__file__).parent, "source"),
                         metavar='DIRECTORY')
     config.add_argument('--target_files', action='store',
                         help="Specify path to directory where processed markdown files should be saved. Default is to "
-                             "use a \"dest\" folder in the current directory. "
-                        , default=pathlib.Path.joinpath(pathlib.Path(__file__).parent, "dest"), metavar='DIRECTORY')
+                             "use a \"dest\" folder in the current directory. ",
+                        default=pathlib.Path.joinpath(pathlib.Path(__file__).parent, "dest"), metavar='DIRECTORY')
     config.add_argument('-p', '--process', action='store',
                         help="Determine whether to process all source files or only recently modified files. Default "
                              "is %(default)s.",
@@ -42,8 +42,8 @@ def parse_config():
                         default='all')
     config.add_argument('-m', '--modified', action='store', type=int,
                         help="Specify in minutes what is the time limit for recently modified files. Default is "
-                             "%(default)s."
-                        , default=60, metavar='MINUTES')
+                             "%(default)s.",
+                        default=60, metavar='MINUTES')
     if len(sys.argv) == 1:
         print('Script is being executed without any parameters and will use built-in defaults. Re-run script with -h '
               'parameter to understand options available.')
