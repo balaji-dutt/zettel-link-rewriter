@@ -149,19 +149,19 @@ def modify_links(file_obj):
             # Read the entire file as a single string
             linelist = regex.sub(r"(?V1)"
                                  r"(?s)```.*?```(*SKIP)(*FAIL)(?-s)|(?s)`.*?`(*SKIP)(*FAIL)(?-s)"
-            #                    Ignore fenced & inline code blocks. V1 engine allows in-line flags so 
-            #                    we enable newline matching only here.
+                                 # Ignore fenced & inline code blocks. V1 engine allows in-line flags so 
+                                 # we enable newline matching only here.
                                  r"|(\ {4}|\t).*(*SKIP)(*FAIL)"
-            #                    Ignore code blocks beginning with 4 spaces/1 tab
+                                 # Ignore code blocks beginning with 4 spaces/1 tab
                                  r"|(\[\[(.*)\]\](?!\s\(|\())", r"[\3](\3.md)", line)
             # Finds  references that are in style [[foo]] only by excluding links in style [[foo]](bar) or
             # [[foo]] (bar). Capture group $3 returns just foo
             linelist_final = regex.sub(r"(?V1)"
                                        r"(?s)```.*?```(*SKIP)(*FAIL)(?-s)|(?s)`.*?`(*SKIP)(*FAIL)(?-s)"
-            #                          Refer comments above for this portion.
+                                       # Refer comments above for this portion.
                                        r"|(\ {4}).*(*SKIP)(*FAIL)"
-            #                          Ignore code blocks beginning with 4 spaces only. Tabs are not supported here 
-            #                          since Note-Link-Janitor uses tabs for inline references. 
+                                       # Ignore code blocks beginning with 4 spaces only. Tabs are not supported here 
+                                       # since Note-Link-Janitor uses tabs for inline references. 
                                        r"|(\[\[(\d+)\]\](\s\(|\()(.*)(?=\))\))", r"[\3](\3 \5.md)", linelist)
             # Finds only references in style [[123]](bar) or [[123]] (bar). Capture group $3 returns 123 and capture
             # group $5 returns bar
